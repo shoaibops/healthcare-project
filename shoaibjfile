@@ -19,27 +19,27 @@ pipeline {
      stage('Test Results') {
       steps {
            echo 'This is for generating Test Results'
-           publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: '/var/lib/jenkins/workspace/healthcare-project/target/surefire-reports', reportFiles: 'index.html', reportName: 'HTML Report', reportTitles: '', useWrapperFileDirectly: true])
+           publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: '/var/lib/jenkins/workspace/Health-care1.0/target/surefire-reports', reportFiles: 'index.html', reportName: 'HTML Report', reportTitles: '', useWrapperFileDirectly: true])
             }
           }
      stage('Docker Image Creation') {
       steps {
            echo 'This is for Docker image build'
-           sh 'docker build -t balunideepak/healthcare:latest .'
+           sh 'docker build -t shoaibpathan/healthcare:1.0 .'
             }
           }
      stage('Login to Dockerhub') {
       steps {
-             withCredentials([usernamePassword(credentialsId: 'dockeruser', passwordVariable: 'password', usernameVariable: 'username')]) {
+             withCredentials([usernamePassword(credentialsId: 'dockerid', passwordVariable: 'password', usernameVariable: 'username')]) {
           // withCredentials([usernameColonPassword(credentialsId: 'docker-id-user', variable: 'docker-all')]) {
           // withCredentials([string(credentialsId: 'dockercode', variable: 'dockervarcode')]) {
-           sh 'docker login -u balunideepak -p ${password}'
+           sh 'docker login -u shoaibpathan -p ${password}'
                          }
                    }
                }
      stage('Push the Docker image') {
       steps {
-        sh 'docker push balunideepak/healthcare:latest'
+        sh 'docker push shoaibpathan/healthcare:1.0'
                                 }
             }
       stage('Ansible Playbook') {
