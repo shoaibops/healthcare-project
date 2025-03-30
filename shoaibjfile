@@ -7,7 +7,7 @@ pipeline {
     stage('Git checkout') {
       steps {
            echo 'This is for cloning the gitrepo'
-           git branch: 'master', url: 'https://github.com/Balunideepak/healthcare-project.git'
+           git branch: 'master', url: 'https://github.com/shoaibops/healthcare-project.git'
             }
           }
      stage('Maven Package') {
