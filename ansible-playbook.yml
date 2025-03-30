@@ -4,7 +4,7 @@
   tasks:
     - name: Clone the Healthcare Project Repository
       git:
-        repo: "https://github.com/Balunideepak/healthcare-project.git"
+        repo: "https://github.com/shoaibops/healthcare-project.git"
         dest: "/tmp/healthcare-project"
         clone: yes
         update: yes
