@@ -168,7 +168,7 @@
 
     - name: Copy Grafana dashboard JSON
       copy:
-        src: "{{ playbook_dir }}/../terraform-file/grafana/dashboards/system-metrics.json"
+        src: "{{ playbook_dir }}/../terraform-files/grafana/dashboards/system-metrics.json"
         dest: /var/lib/grafana/dashboards/system-metrics.json
         owner: grafana
         group: grafana
@@ -184,7 +184,7 @@
 
     - name: Copy Grafana provisioning YAML
       copy:
-        src: "{{ playbook_dir }}/../terraform-file/grafana/provisioning/dashboards/dashboard.yml"
+        src: "{{ playbook_dir }}/../terraform-files/grafana/provisioning/dashboards/dashboard.yml"
         dest: /etc/grafana/provisioning/dashboards/dashboard.yml
         owner: grafana
         group: grafana
