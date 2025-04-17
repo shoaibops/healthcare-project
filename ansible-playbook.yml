@@ -167,12 +167,14 @@
         mode: '0755'
 
     - name: Copy Grafana dashboard JSON
-      copy:
-        src: "{{ playbook_dir }}/../terraform-files/grafana/dashboards/system-metrics.json"
-        dest: /var/lib/grafana/dashboards/system-metrics.json
-        owner: grafana
-        group: grafana
-        mode: '0644'
+  copy:
+    src: "{{ playbook_dir }}/../terraform-file/grafana/dashboards/system-metrics.json"
+    dest: "/var/lib/grafana/dashboards/system-metrics.json"
+    remote_src: no
+    owner: grafana
+    group: grafana
+    mode: '0644'
+
 
     - name: Create provisioning directory for dashboards
       file:
@@ -186,6 +188,7 @@
       copy:
         src: "{{ playbook_dir }}/../terraform-files/grafana/provisioning/dashboards/dashboard.yml"
         dest: /etc/grafana/provisioning/dashboards/dashboard.yml
+        remote_src: no
         owner: grafana
         group: grafana
         mode: '0644'
