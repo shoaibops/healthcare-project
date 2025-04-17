@@ -17,21 +17,14 @@
     - name: Display kubectl apply output
       debug:
         var: k8s_output.stdout_lines
-    - name: Monitoring Stack Setup (Prometheus, Node Exporter, Grafana)
-  hosts: localhost
-  become: true
-  tasks:
 
-    # -----------------------
-    # Prometheus Setup
-    # -----------------------
-
+    # Prometheus setup
     - name: Create Prometheus directory
       file:
         path: /opt/prometheus
         state: directory
-        owner: ec2-user
-        group: ec2-user
+        owner: ubuntu
+        group: ubuntu
         mode: '0755'
 
     - name: Download Prometheus
@@ -68,7 +61,7 @@
           After=network-online.target
 
           [Service]
-          User=ec2-user
+          User=ubuntu
           ExecStart=/opt/prometheus/prometheus --config.file=/opt/prometheus/prometheus.yml
           Restart=always
 
@@ -89,10 +82,7 @@
         name: prometheus
         state: started
 
-    # -----------------------
-    # Node Exporter Setup
-    # -----------------------
-
+    # Node Exporter setup
     - name: Download Node Exporter
       get_url:
         url: "https://github.com/prometheus/node_exporter/releases/download/v1.9.0/node_exporter-1.9.0.linux-amd64.tar.gz"
@@ -119,7 +109,7 @@
           After=network-online.target
 
           [Service]
-          User=ec2-user
+          User=ubuntu
           ExecStart=/opt/node_exporter/node_exporter
           Restart=always
 
@@ -140,10 +130,7 @@
         name: node_exporter
         state: started
 
-    # -----------------------
-    # Grafana Setup (RHEL-based systems)
-    # -----------------------
-
+    # Grafana setup
     - name: Add Grafana repository
       yum_repository:
         name: grafana
