@@ -22,8 +22,8 @@
       file:
         path: /opt/prometheus
         state: directory
-        owner: ec2-user
-        group: ec2-user
+        owner: ubuntu
+        group: ubuntu
         mode: '0755'
 
     - name: Download Prometheus
@@ -60,10 +60,10 @@
           After=network-online.target
 
           [Service]
-          User=ec2-user
+          User=ubuntu
           ExecStart=/opt/prometheus/prometheus --config.file=/opt/prometheus/prometheus.yml
           Restart=always
-
+  
           [Install]
           WantedBy=multi-user.target
         mode: '0644'
@@ -108,7 +108,7 @@
           After=network-online.target
 
           [Service]
-          User=ec2-user
+          User=ubuntu
           ExecStart=/opt/node_exporter/node_exporter
           Restart=always
 
