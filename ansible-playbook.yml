@@ -1,3 +1,4 @@
+
 - name: Running Kubernetes Cluster
   hosts: localhost
   become: true
@@ -130,18 +131,23 @@
         name: node_exporter
         state: started
 
-    # Grafana setup
-    - name: Add Grafana repository
-      yum_repository:
-        name: grafana
-        description: Grafana Repository
-        baseurl: https://packages.grafana.com/oss/rpm
-        enabled: yes
-        gpgcheck: yes
-        gpgkey: https://packages.grafana.com/gpg.key
+    # Grafana setup (Ubuntu-based)
+    - name: Add Grafana APT key
+      apt_key:
+        url: https://packages.grafana.com/gpg.key
+        state: present
+
+    - name: Add Grafana APT repository
+      apt_repository:
+        repo: 'deb https://packages.grafana.com/oss/deb stable main'
+        state: present
+
+    - name: Update APT cache
+      apt:
+        update_cache: yes
 
     - name: Install Grafana
-      yum:
+      apt:
         name: grafana
         state: present
 
