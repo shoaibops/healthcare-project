@@ -135,13 +135,13 @@
         name: node_exporter
         state: started
 
-    # Grafana setup (Ubuntu/Debian-based)
+    # Grafana setup
     - name: Add Grafana GPG key
       apt_key:
         url: https://packages.grafana.com/gpg.key
         state: present
 
-    - name: Add Grafana repository for Ubuntu
+    - name: Add Grafana repository
       apt_repository:
         repo: "deb https://packages.grafana.com/oss/deb stable main"
         state: present
@@ -152,7 +152,7 @@
         name: grafana
         state: present
 
-    - name: Start Grafana Service
+    - name: Start and enable Grafana service
       service:
         name: grafana-server
         state: started
@@ -167,13 +167,13 @@
         mode: '0755'
 
     - name: Copy Grafana dashboard JSON
-  copy:
-    src: "{{ playbook_dir }}/../terraform-file/grafana/dashboards/system-metrics.json"
-    dest: "/var/lib/grafana/dashboards/system-metrics.json"
-    remote_src: no
-    owner: grafana
-    group: grafana
-    mode: '0644'
+      copy:
+        src: "{{ playbook_dir }}/../terraform-file/grafana/dashboards/system-metrics.json"
+        dest: /var/lib/grafana/dashboards/system-metrics.json
+        remote_src: no
+        owner: grafana
+        group: grafana
+        mode: '0644'
 
     - name: Create provisioning directory for dashboards
       file:
@@ -185,7 +185,7 @@
 
     - name: Copy Grafana provisioning YAML
       copy:
-        src: "{{ playbook_dir }}/../terraform-files/grafana/provisioning/dashboards/dashboard.yml"
+        src: "{{ playbook_dir }}/../terraform-file/grafana/provisioning/dashboards/dashboard.yml"
         dest: /etc/grafana/provisioning/dashboards/dashboard.yml
         remote_src: no
         owner: grafana
