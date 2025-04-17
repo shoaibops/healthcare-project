@@ -1,0 +1,68 @@
+pipeline {
+  agent any
+  tools {
+    maven 'M2_HOME'
+  }
+  environment {
+    AWS_ACCESS_KEY_ID = credentials('aws-access-key')
+    AWS_SECRET_ACCESS_KEY = credentials('aws-secret-key')
+  }
+  stages {
+    stage('Checkout') {
+      steps {
+        git branch: 'master', url: 'https://github.com/shoaibops/healthcare-project.git'
+      }
+    }
+    stage('Build') {
+      steps {
+        sh 'mvn clean package'
+      }
+    }
+    stage('Unit Test Results') {
+      steps {
+        junit 'target/surefire-reports/*.xml'
+      }
+    }
+    stage('Docker Build & Push') {
+      steps {
+        sh 'docker build -t shoaibpathan/healthcare:1.0 .'
+        withCredentials([usernamePassword(credentialsId: 'dockerid', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+          sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+        }
+        sh 'docker push shoaibpathan/healthcare:1.0'
+      }
+    }
+    stage('Provision Test Cluster') {
+      steps {
+        dir('terraform') {
+          sh 'terraform init'
+          sh 'terraform apply -auto-approve'
+        }
+      }
+    }
+    stage('Deploy to Test') {
+      steps {
+        ansiblePlaybook credentialsId: 'sshkey', inventory: '/etc/ansible/hosts', playbook: 'ansible-playbook.yml'
+      }
+    }
+    stage('Test Automation') {
+      steps {
+        // Insert any testing logic, e.g., Selenium/REST Assured/Postman CLI
+        echo 'Running automated tests...'
+      }
+    }
+    stage('Deploy to Prod') {
+      when {
+        expression { currentBuild.currentResult == 'SUCCESS' }
+      }
+      steps {
+        ansiblePlaybook credentialsId: 'sshkey', inventory: '/etc/ansible/prod-hosts', playbook: 'ansible-playbook.yml'
+      }
+    }
+  }
+  post {
+    always {
+      cleanWs()
+    }
+  }
+}
