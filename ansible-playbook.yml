@@ -175,7 +175,6 @@
     group: grafana
     mode: '0644'
 
-
     - name: Create provisioning directory for dashboards
       file:
         path: /etc/grafana/provisioning/dashboards
