@@ -168,7 +168,7 @@
 
     - name: Copy Grafana dashboard JSON
       copy:
-        src: "{{ playbook_dir }}/../terraform-files/grafana/dashboards/system-metrics.json"
+        src: "{{ playbook_dir }}/../terraform-files/'grafana '/dashboards/system-metrics.json"
         dest: /var/lib/grafana/dashboards/system-metrics.json
         remote_src: no
         owner: grafana
