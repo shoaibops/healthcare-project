@@ -17,3 +17,172 @@
     - name: Display kubectl apply output
       debug:
         var: k8s_output.stdout_lines
+     # Prometheus setup
+    - name: Create Prometheus directory
+      file:
+        path: /opt/prometheus
+        state: directory
+        owner: ec2-user
+        group: ec2-user
+        mode: '0755'
+
+    - name: Download Prometheus
+      get_url:
+        url: "https://github.com/prometheus/prometheus/releases/download/v2.37.0/prometheus-2.37.0.linux-amd64.tar.gz"
+        dest: /tmp/prometheus.tar.gz
+
+    - name: Extract Prometheus
+      unarchive:
+        src: /tmp/prometheus.tar.gz
+        dest: /opt/prometheus
+        remote_src: yes
+        extra_opts: [--strip-components=1]
+
+    - name: Create Prometheus config
+      copy:
+        dest: /opt/prometheus/prometheus.yml
+        content: |
+          global:
+            scrape_interval: 10s
+
+          scrape_configs:
+            - job_name: "node-exporter"
+              static_configs:
+                - targets: ["localhost:9100"]
+
+    - name: Create Prometheus systemd unit file
+      copy:
+        dest: /etc/systemd/system/prometheus.service
+        content: |
+          [Unit]
+          Description=Prometheus
+          Wants=network-online.target
+          After=network-online.target
+
+          [Service]
+          User=ec2-user
+          ExecStart=/opt/prometheus/prometheus --config.file=/opt/prometheus/prometheus.yml
+          Restart=always
+
+          [Install]
+          WantedBy=multi-user.target
+        mode: '0644'
+
+    - name: Reload systemd (Prometheus)
+      command: systemctl daemon-reexec
+
+    - name: Enable Prometheus service
+      systemd:
+        name: prometheus
+        enabled: yes
+
+    - name: Start Prometheus service
+      systemd:
+        name: prometheus
+        state: started
+
+    # Node Exporter setup
+    - name: Download Node Exporter
+      get_url:
+        url: "https://github.com/prometheus/node_exporter/releases/download/v1.9.0/node_exporter-1.9.0.linux-amd64.tar.gz"
+        dest: /tmp/node_exporter.tar.gz
+
+    - name: Extract Node Exporter
+      unarchive:
+        src: /tmp/node_exporter.tar.gz
+        dest: /opt/
+        remote_src: yes
+
+    - name: Move Node Exporter to final path
+      command: mv /opt/node_exporter-1.9.0.linux-amd64 /opt/node_exporter
+      args:
+        removes: /opt/node_exporter-1.9.0.linux-amd64
+
+    - name: Create Node Exporter systemd unit file
+      copy:
+        dest: /etc/systemd/system/node_exporter.service
+        content: |
+          [Unit]
+          Description=Node Exporter
+          Wants=network-online.target
+          After=network-online.target
+
+          [Service]
+          User=ec2-user
+          ExecStart=/opt/node_exporter/node_exporter
+          Restart=always
+
+          [Install]
+          WantedBy=multi-user.target
+        mode: '0644'
+
+    - name: Reload systemd (Node Exporter)
+      command: systemctl daemon-reexec
+
+    - name: Enable Node Exporter service
+      systemd:
+        name: node_exporter
+        enabled: yes
+
+    - name: Start Node Exporter service
+      systemd:
+        name: node_exporter
+        state: started
+
+    # Grafana setup
+    - name: Add Grafana repository
+      yum_repository:
+        name: grafana
+        description: Grafana Repository
+        baseurl: https://packages.grafana.com/oss/rpm
+        enabled: yes
+        gpgcheck: yes
+        gpgkey: https://packages.grafana.com/gpg.key
+
+    - name: Install Grafana
+      yum:
+        name: grafana
+        state: present
+
+    - name: Start Grafana Service
+      service:
+        name: grafana-server
+        state: started
+        enabled: yes
+
+    - name: Create dashboards directory
+      file:
+        path: /var/lib/grafana/dashboards
+        state: directory
+        owner: grafana
+        group: grafana
+        mode: '0755'
+
+    - name: Copy Grafana dashboard JSON
+      copy:
+        src: grafana/dashboards/system-metrics.json
+        dest: /var/lib/grafana/dashboards/system-metrics.json
+        owner: grafana
+        group: grafana
+        mode: '0644'
+
+    - name: Create provisioning directory for dashboards
+      file:
+        path: /etc/grafana/provisioning/dashboards
+        state: directory
+        owner: grafana
+        group: grafana
+        mode: '0755'
+
+    - name: Copy Grafana provisioning YAML
+      copy:
+        src: grafana/provisioning/dashboards/dashboard.yml
+        dest: /etc/grafana/provisioning/dashboards/dashboard.yml
+        owner: grafana
+        group: grafana
+        mode: '0644'
+
+    - name: Restart Grafana to apply dashboard config
+      service:
+        name: grafana-server
+        state: restarted
