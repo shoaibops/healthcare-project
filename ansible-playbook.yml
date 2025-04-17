@@ -169,7 +169,7 @@
 
     - name: Copy Grafana dashboard JSON
       copy:
-        src: "{{ playbook_dir }}/../terraform/grafana/dashboard/system-metrics.json"
+        src: "/var/lib/jenkins/workspace/Health-care1.0/terraform/grafana/dashboard/system-metrics.json"
         dest: "/var/lib/grafana/dashboards/system-metrics.json"
         remote_src: no
         owner: grafana
@@ -186,7 +186,7 @@
 
     - name: Copy Grafana provisioning YAML
       copy:
-        src: "{{ playbook_dir }}/../terraform/grafana/provisioning/dashboards/dashboard.yml"
+        src: "/var/lib/jenkins/workspace/Health-care1.0/terraform/grafana/provisioning/dashboard.yml"
         dest: /etc/grafana/provisioning/dashboards/dashboard.yml
         remote_src: no
         owner: grafana
