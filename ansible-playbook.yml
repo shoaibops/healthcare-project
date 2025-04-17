@@ -135,18 +135,15 @@
         name: node_exporter
         state: started
 
-    # Grafana setup
-    - name: Add Grafana repository
-      yum_repository:
-        name: grafana
-        description: Grafana Repository
-        baseurl: https://packages.grafana.com/oss/rpm
-        enabled: yes
-        gpgcheck: yes
-        gpgkey: https://packages.grafana.com/gpg.key
+    # Grafana setup (Ubuntu/Debian-based)
+    - name: Add Grafana repository for Ubuntu
+      apt_repository:
+        repo: "deb https://packages.grafana.com/oss/deb stable main"
+        state: present
+        update_cache: yes
 
     - name: Install Grafana
-      yum:
+      apt:
         name: grafana
         state: present
 
